@@ -15,22 +15,7 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-// var (
-// 	debug         = flag.Bool("debug", false, "enable debugging")
-// 	password      = flag.String("password", "Hello@2015!", "password")
-// 	port     *int = flag.Int("port", 1433, "server port")
-// 	server        = flag.String("server", "demobase.database.windows.net", "server / host address")
-// 	user          = flag.String("user", "DemoAdmin", "username (e.g. root)")
-// 	database      = flag.String("database", "DemoBase", "database name")
-// )
-
 var debug = flag.Bool("debug", false, "enable debugging")
-
-// 	password = "Hello@2015!"
-// 	port     = 1433
-// 	server   = "demobase.database.windows.net"
-// 	user     = "DemoAdmin"
-// 	database = "DemoBase"
 
 func main() {
 	byts, _ := ioutil.ReadFile("config.json")
