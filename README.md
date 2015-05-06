@@ -20,5 +20,4 @@ Program requires a `config.json` in root directory:
 <hr>
 <small>
 <strong>&copy; 2015 MIT License</strong>
-</small># Info
-# Info
+</small>
