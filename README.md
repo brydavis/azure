@@ -21,3 +21,4 @@ Program requires a `config.json` in root directory:
 <small>
 <strong>&copy; 2015 MIT License</strong>
 </small># Info
+# Info
