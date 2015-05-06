@@ -21,8 +21,8 @@ When you see terminal prompt `azure ~>`, proceed using SQL.
 
 Special commands:
 
-1. `azure ~> run query.sql` executes code in `./sql/query.sql`
-2. `azure ~> exit` or `azure ~> quit` exits the program and returns to the command line
++ `azure ~> run query.sql` executes code in `./sql/query.sql`
++ `azure ~> exit` or `azure ~> quit` exits the program and returns to the command line
 
 <br>
 <br>
