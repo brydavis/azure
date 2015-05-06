@@ -1,0 +1,157 @@
+package main
+
+import (
+	"bufio"
+	"database/sql"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+
+	_ "github.com/denisenkom/go-mssqldb"
+)
+
+// var (
+// 	debug         = flag.Bool("debug", false, "enable debugging")
+// 	password      = flag.String("password", "Hello@2015!", "password")
+// 	port     *int = flag.Int("port", 1433, "server port")
+// 	server        = flag.String("server", "demobase.database.windows.net", "server / host address")
+// 	user          = flag.String("user", "DemoAdmin", "username (e.g. root)")
+// 	database      = flag.String("database", "DemoBase", "database name")
+// )
+
+var debug = flag.Bool("debug", false, "enable debugging")
+
+// 	password = "Hello@2015!"
+// 	port     = 1433
+// 	server   = "demobase.database.windows.net"
+// 	user     = "DemoAdmin"
+// 	database = "DemoBase"
+
+func main() {
+	byts, _ := ioutil.ReadFile("config.json")
+	var config map[string]interface{}
+	if err := json.Unmarshal(byts, &config); err != nil {
+		panic(err)
+	}
+
+	connString := fmt.Sprintf(
+		"server=%s;user id=%s;password=%s;port=%d;database=%s",
+		config["server"],
+		config["user"],
+		config["password"],
+		int(config["port"].(float64)),
+		config["database"],
+	)
+
+	flag.Parse()
+	if *debug {
+		fmt.Printf(" password:%s\n", config["password"])
+		fmt.Printf(" port:%d\n", int(config["port"].(float64)))
+		fmt.Printf(" server:%s\n", config["server"])
+		fmt.Printf(" user:%s\n", config["user"])
+		fmt.Printf(" connString:%s\n", connString)
+	}
+
+	conn, err := sql.Open("mssql", connString)
+	if err != nil {
+		log.Fatal("Open connection failed:", err.Error())
+	}
+	defer conn.Close()
+
+	silent := false
+	for !silent {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("azure ~> ")
+		scanner.Scan()
+
+		text := scanner.Text()
+		textArray := strings.Split(text, " ")
+
+		switch strings.ToLower(textArray[0]) {
+		case "quit", "exit":
+			os.Exit(1)
+		case "clear":
+			cmd, _ := exec.Command("clear").Output()
+			fmt.Println(string(cmd))
+		case "run":
+			file, _ := ioutil.ReadFile("./sql/" + textArray[1])
+			rows, err := conn.Query(string(file))
+			if err != nil {
+				// log.Fatal("Query Error: ", err.Error())
+				fmt.Println(err.Error(), "\n")
+				continue
+			}
+			defer rows.Close()
+
+			columns, _ := rows.Columns()
+			count := len(columns)
+			values := make([]interface{}, count)
+			valuePtrs := make([]interface{}, count)
+
+			for rows.Next() {
+				for i, _ := range columns {
+					valuePtrs[i] = &values[i]
+				}
+
+				rows.Scan(valuePtrs...)
+				store := make(map[string]interface{})
+				for i, col := range columns {
+					var v interface{}
+					val := values[i]
+					b, ok := val.([]byte)
+
+					if ok {
+						v = string(b)
+					} else {
+						v = val
+					}
+					store[col] = v
+				}
+				fmt.Println(store)
+			}
+			fmt.Println("\n")
+
+		default:
+			rows, err := conn.Query(text)
+			if err != nil {
+				// log.Fatal("Query Error: ", err.Error())
+				fmt.Println(err.Error(), "\n")
+				continue
+			}
+			defer rows.Close()
+
+			columns, _ := rows.Columns()
+			count := len(columns)
+			values := make([]interface{}, count)
+			valuePtrs := make([]interface{}, count)
+
+			for rows.Next() {
+				for i, _ := range columns {
+					valuePtrs[i] = &values[i]
+				}
+
+				rows.Scan(valuePtrs...)
+				store := make(map[string]interface{})
+				for i, col := range columns {
+					var v interface{}
+					val := values[i]
+					b, ok := val.([]byte)
+
+					if ok {
+						v = string(b)
+					} else {
+						v = val
+					}
+					store[col] = v
+				}
+				fmt.Println(store)
+			}
+			fmt.Println("\n")
+		}
+	}
+}
