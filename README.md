@@ -22,7 +22,7 @@ When you see terminal prompt `azure ~>`, proceed using SQL.
 Special commands:
 
 + `run query.sql` executes code in `./sql/query.sql`
-+ `exit` or `quit` exits the program and returns to the command line
++ `exit` or `quit` will close the terminal, exit the program, and return you to the command line
 
 <br>
 <br>
