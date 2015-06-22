@@ -22,7 +22,6 @@ func ListenAndServe(port int, conn *sql.DB) error {
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
 		return err
 	}
-
 	return nil
 }
 
