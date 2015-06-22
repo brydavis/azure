@@ -48,6 +48,8 @@ func main() {
 	}
 	defer conn.Close()
 
+	go ListenAndServe(8080, conn)
+
 	silent := false
 	for !silent {
 		scanner := bufio.NewScanner(os.Stdin)
