@@ -103,6 +103,50 @@ func main() {
 			}
 			fmt.Println("\n")
 
+		case "export":
+			file, _ := ioutil.ReadFile("./sql/" + textArray[1])
+			rows, err := conn.Query(string(file))
+			if err != nil {
+				// log.Fatal("Query Error: ", err.Error())
+				fmt.Println(err.Error(), "\n")
+				continue
+			}
+			defer rows.Close()
+
+			columns, _ := rows.Columns()
+			count := len(columns)
+			values := make([]interface{}, count)
+			valuePtrs := make([]interface{}, count)
+
+			megastore := make([]map[string]interface{})
+
+			for rows.Next() {
+				for i, _ := range columns {
+					valuePtrs[i] = &values[i]
+				}
+
+				rows.Scan(valuePtrs...)
+				store := make(map[string]interface{})
+				for i, col := range columns {
+					var v interface{}
+					val := values[i]
+					b, ok := val.([]byte)
+
+					if ok {
+						v = string(b)
+					} else {
+						v = val
+					}
+					store[col] = v
+				}
+				megastore = append(megastore, store)
+				// fmt.Println(store)
+			}
+			fmt.Println("\n")
+
+			j, err := json.Marshal(megastore)
+			ioutil.WriteFile(textArray[2], j, 0777)
+
 		default:
 			rows, err := conn.Query(text)
 			if err != nil {
